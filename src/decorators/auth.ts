@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/shared/guards/auth.guard';
-import { Roles } from 'src/shared/guards/roles.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { Roles } from 'src/guards/roles.decorator';
 
 export function AdminAuth() {
   return (

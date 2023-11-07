@@ -3,11 +3,8 @@ import { AuthService } from './auth.service.js';
 import { Response, Request } from 'express';
 import { AuthRequest } from './auth-request.interface.js';
 import { UserDTO } from '../users/dtos/user.dto.js';
-import {
-  REFRESH_TOKEN,
-  REFRESH_TOKEN_EXPIRES,
-} from '../../shared/constants/auth.js';
-import { UseAuth, AdminAuth } from '../../shared/decorators/auth.js';
+import { REFRESH_TOKEN, REFRESH_TOKEN_EXPIRES } from '../../constants/auth.js';
+import { UseAuth, AdminAuth } from '../../decorators/auth.js';
 
 @Controller('auth')
 export class AuthController {

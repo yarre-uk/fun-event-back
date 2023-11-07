@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from 'src/app/users/users.module';
-import { User } from '../shared/models/user.model';
+import { User } from '../models/user.model';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Device } from '../models/device.model';
 import {
   DB_DATABASE,
   DB_HOST,
   DB_PASSWORD,
   DB_USER,
-} from 'src/shared/constants/database';
+} from '../constants/database';
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import {
           ssl: true,
           synchronize: true,
           autoLoadEntities: true,
-          entities: [User],
+          entities: [User, Device],
         };
       },
 
@@ -34,12 +36,7 @@ import {
     ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     AuthModule,
+    DevicesModule,
   ],
-  // providers: [
-  //   {
-  //     provide: APP_GUARD,
-  //     useClass: AuthGuard,
-  //   },
-  // ],
 })
 export class AppModule {}

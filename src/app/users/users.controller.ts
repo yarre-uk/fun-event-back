@@ -9,10 +9,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dtos/update-user.dto';
-import { AdminAuth } from '../../shared/decorators/auth';
+import { UpdateUserDTO } from './dtos/update-user.dto';
+import { AdminAuth } from '../../decorators/auth';
 
-@Controller('user')
+@Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -52,7 +52,7 @@ export class UsersController {
 
   @AdminAuth()
   @Patch('/:id')
-  updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
+  updateUser(@Param('id') id: string, @Body() body: UpdateUserDTO) {
     return this.usersService.update(parseInt(id), body);
   }
 }

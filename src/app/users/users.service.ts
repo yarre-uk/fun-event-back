@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../../shared/models/user.model';
+import { User } from '../../models/user.model';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +18,7 @@ export class UsersService {
       return null;
     }
 
-    return this.repo.findOneBy(options);
+    return this.repo.findOneBy({ ...options, devices: true });
   }
 
   find(options?: FindOptionsWhere<User> | FindOptionsWhere<User>[]) {
@@ -26,7 +26,7 @@ export class UsersService {
       return null;
     }
 
-    return this.repo.find({ where: options });
+    return this.repo.find({ where: options, relations: { devices: true } });
   }
 
   async update(id: number, attrs: Partial<User>) {

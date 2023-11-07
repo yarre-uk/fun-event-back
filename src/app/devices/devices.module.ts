@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
+import { DevicesService } from './devices.service';
+import { DevicesController } from './devices.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Device } from '../../models/device.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { SECRET } from '../../constants/auth';
 import { User } from '../../models/user.model';
-import { ProfileController } from './profile.controller';
-import { Device } from '../../models/device.model';
 
 @Module({
   imports: [
@@ -20,8 +19,8 @@ import { Device } from '../../models/device.model';
       inject: [ConfigService],
     }),
   ],
-  controllers: [UsersController, ProfileController],
-  providers: [UsersService],
-  exports: [UsersService],
+  providers: [DevicesService],
+  controllers: [DevicesController],
+  exports: [DevicesService],
 })
-export class UsersModule {}
+export class DevicesModule {}

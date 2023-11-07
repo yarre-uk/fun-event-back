@@ -5,8 +5,8 @@ import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module.js';
-import { SECRET } from '../../shared/constants/auth.js';
-import { User } from '../../shared/models/user.model.js';
+import { SECRET } from '../../constants/auth.js';
+import { User } from '../../models/user.model.js';
 
 @Module({
   imports: [

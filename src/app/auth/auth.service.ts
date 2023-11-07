@@ -6,7 +6,7 @@ import { UserDTO } from '../users/dtos/user.dto.js';
 import {
   ACCESS_TOKEN_EXPIRES,
   REFRESH_TOKEN_EXPIRES,
-} from '../../shared/constants/auth.js';
+} from '../../constants/auth.js';
 
 @Injectable()
 export class AuthService {
@@ -60,7 +60,10 @@ export class AuthService {
   }
 
   async signUpUser(userDTO: UserDTO) {
-    const user = await this.usersService.create({ ...userDTO, isAdmin: false });
+    const user = await this.usersService.create({
+      ...userDTO,
+      role: 'User',
+    });
 
     const payload = { id: user.id, email: user.email };
 

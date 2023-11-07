@@ -14,8 +14,8 @@ import {
   REFRESH_TOKEN_EXPIRES,
   SECRET,
 } from '../constants/auth.js';
-import { JWTUserDTO, UserDTOVerified } from '../../app/auth/dtos/user.dto.js';
-import { AuthRequest } from '../../app/auth/auth-request.interface.js';
+import { JWTUserDTO, UserDTOVerified } from '../app/auth/dtos/user.dto.js';
+import { AuthRequest } from '../app/auth/auth-request.interface.js';
 import { Reflector } from '@nestjs/core';
 import { Roles } from './roles.decorator.js';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -61,7 +61,7 @@ export class AuthGuard implements CanActivate {
   };
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const roles = this.reflector.get(Roles, context.getHandler());
+    const requestRole = this.reflector.get(Roles, context.getHandler());
 
     const request: AuthRequest = context.switchToHttp().getRequest();
     const response: Response = context.switchToHttp().getResponse();
@@ -102,15 +102,17 @@ export class AuthGuard implements CanActivate {
       this.setTokenToCookies(response, newRefreshToken);
     }
 
-    if (!roles) {
-      return true;
-    }
-
-    const { isAdmin } = await this.repo.findOne({
+    const user = await this.repo.findOne({
       where: { id: request.user.id },
     });
 
-    if (roles == 'Admin' && isAdmin) {
+    request.user.data = user;
+
+    if (!requestRole) {
+      return true;
+    }
+
+    if (requestRole == 'Admin' && user.role == 'Admin') {
       return true;
     } else {
       throw new ForbiddenException();
