@@ -60,10 +60,7 @@ export class AuthService {
   }
 
   async signUpUser(userDTO: UserDTO) {
-    const user = await this.usersService.create({
-      ...userDTO,
-      role: 'User',
-    });
+    const user = await this.usersService.create(userDTO);
 
     const payload = { id: user.id, email: user.email };
 

@@ -13,7 +13,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ default: 'Admin' })
   role: Role;
 
   @OneToMany(() => Device, (device) => device.user, { cascade: true })

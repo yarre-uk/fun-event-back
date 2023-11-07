@@ -1,22 +1,22 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.model';
 import { Action, Reaction } from './commands';
 
 @Entity()
 export class Device {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
-  @Column()
+  @Column({ default: '' })
   action: Action;
 
-  @Column()
+  @Column({ default: '' })
   reaction: Reaction;
 
-  @Column()
+  @Column({ default: '' })
   nfcData: string;
 
-  @Column()
+  @Column({ default: false })
   approved: boolean;
 
   @ManyToOne(() => User, (user) => user.devices)

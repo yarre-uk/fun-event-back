@@ -30,13 +30,13 @@ export class DevicesController {
       user: { id: req.user.id },
     });
 
-    console.log(req.user.id);
+    console.log(req.user);
 
     if (!!entityWithId) {
       throw new ForbiddenException();
     }
 
-    return this.deviceService.create({
+    return this.deviceService.create(req.user.data, {
       id: createDeviceDTO.id,
       user: { id: req.user.id },
     });

@@ -11,8 +11,8 @@ export class DevicesService {
     @InjectRepository(User) private repoUser: Repository<User>,
   ) {}
 
-  create(entity: DeepPartial<Device>) {
-    const createdEntity = this.repo.create(entity);
+  create(user: User, entity: DeepPartial<Device>) {
+    const createdEntity = this.repo.create({ ...entity, user });
 
     return this.repo.save(createdEntity);
   }

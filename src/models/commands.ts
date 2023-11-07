@@ -1,2 +1,2 @@
-export type Action = 'Light' | 'Sound' | 'NFCData' | 'Vibrate';
-export type Reaction = 'Light' | 'Sound';
+export type Action = 'Light' | 'Sound' | 'NFCData' | 'Vibrate' | '';
+export type Reaction = 'Light' | 'Sound' | '';
