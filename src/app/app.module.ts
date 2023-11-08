@@ -12,6 +12,7 @@ import {
   DB_USER,
 } from '../constants/database';
 import { DevicesModule } from './devices/devices.module';
+import { Payment } from '../models/payment';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { DevicesModule } from './devices/devices.module';
           ssl: true,
           synchronize: true,
           autoLoadEntities: true,
-          entities: [User, Device],
+          entities: [User, Device, Payment],
         };
       },
 
