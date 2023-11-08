@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { SECRET } from '../../constants/auth';
 import { User } from '../../models/user.model';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { User } from '../../models/user.model';
       }),
       inject: [ConfigService],
     }),
+    UsersModule,
   ],
   providers: [DevicesService],
   controllers: [DevicesController],

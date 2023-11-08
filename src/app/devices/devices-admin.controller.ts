@@ -7,29 +7,34 @@ import {
   Param,
   Patch,
   Post,
-  Request,
+  Query,
 } from '@nestjs/common';
-import { UseAuth } from '../../decorators/auth';
+import { AdminAuth } from '../../decorators/auth';
 import { DevicesService } from './devices.service';
-import { AuthRequest } from '../auth/auth-request.interface';
 import { UpdateDeviceDTO } from './dtos/update-device.dto';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
-import { ApproveDeviceDTO } from './dtos/approve-device.dto';
-import { APPROVE_CHECK } from '../../constants/devices';
+import { UsersService } from '../users/users.service';
 
-@Controller('devices')
+@Controller('devices-admin')
 export class DevicesController {
-  constructor(private readonly deviceService: DevicesService) {}
+  constructor(
+    private readonly deviceService: DevicesService,
+    private readonly userService: UsersService,
+  ) {}
 
-  @UseAuth()
+  @AdminAuth()
   @Post()
   async addDevice(
-    @Request() req: AuthRequest,
+    @Query('userId') userId: string,
     @Body() createDeviceDTO: CreateDeviceDTO,
   ) {
+    if (Number.isNaN(+userId)) {
+      return new Error('Id is not a number');
+    }
+
     const entityWithId = await this.deviceService.findOne({
       id: createDeviceDTO.id,
-      user: { id: req.user.id },
+      user: { id: parseInt(userId) },
     });
 
     if (!!entityWithId) {
@@ -39,78 +44,80 @@ export class DevicesController {
     setTimeout(async () => {
       const entityForApprove = await this.deviceService.findOne({
         id: createDeviceDTO.id,
-        user: { id: req.user.id },
+        user: { id: parseInt(userId) },
       });
 
       if (!entityForApprove.approved) {
         await this.deviceService.remove({
           id: entityForApprove.id,
-          user: { id: req.user.id },
+          user: { id: parseInt(userId) },
         });
       }
-    }, APPROVE_CHECK);
+    }, 60 * 1000);
 
-    return this.deviceService.create(req.user.data, {
+    const user = await this.userService.findOne({ id: parseInt(userId) });
+
+    return this.deviceService.create(user, {
       id: createDeviceDTO.id,
-      user: { id: req.user.id },
+      user: { id: parseInt(userId) },
     });
   }
 
-  @Post('/approve')
-  async approveDevice(@Body() approveDeviceDTO: ApproveDeviceDTO) {
-    const entityForApprove = await this.deviceService.findOne({
-      id: approveDeviceDTO.id,
-    });
-
-    this.deviceService.update(
-      { user: entityForApprove.user },
-      { ...entityForApprove, approved: true },
-    );
-  }
-
-  @UseAuth()
+  @AdminAuth()
   @Get()
-  getAll(@Request() req: AuthRequest) {
-    return this.deviceService.find({ user: { id: req.user.id } });
+  getAll() {
+    return this.deviceService.find({});
   }
 
-  @UseAuth()
+  @AdminAuth()
+  @Get('/for-user')
+  getAllForUser(@Query('userId') userId: string) {
+    if (Number.isNaN(+userId)) {
+      return new Error('Id is not a number');
+    }
+
+    return this.deviceService.find({ user: { id: parseInt(userId) } });
+  }
+
+  @AdminAuth()
   @Get('/:id')
-  getById(@Request() req: AuthRequest, @Param('id') id: string) {
+  getById(@Param('id') id: string) {
     if (Number.isNaN(+id)) {
       return new Error('Id is not a number');
     }
 
     return this.deviceService.find({
       id: parseInt(id),
-      user: { id: req.user.id },
     });
   }
 
-  @UseAuth()
+  @AdminAuth()
   @Delete('/:id')
-  removeDevice(@Request() req: AuthRequest, @Param('id') id: string) {
+  removeDevice(@Param('id') id: string) {
     if (Number.isNaN(+id)) {
       return new Error('Id is not a number');
     }
 
     return this.deviceService.remove({
       id: parseInt(id),
-      user: { id: req.user.id },
     });
   }
 
-  @UseAuth()
+  @AdminAuth()
   @Patch('/:id')
   updateDevice(
-    @Request() req: AuthRequest,
+    @Query('userId') userId: string,
     @Param('id') id: string,
     @Body() body: UpdateDeviceDTO,
   ) {
+    if (Number.isNaN(+id)) {
+      return new Error('Id is not a number');
+    }
+
     return this.deviceService.update(
       {
-        id: parseInt(id),
-        user: { id: req.user.id },
+        id: body.id,
+        user: { id: parseInt(userId) },
       },
       body,
     );
