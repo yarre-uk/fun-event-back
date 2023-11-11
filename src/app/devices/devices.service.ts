@@ -1,8 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial, FindOptionsWhere } from 'typeorm';
 import { Device } from '../../models/device.model';
 import { User } from '../../models/user.model';
+import { CreateDeviceDTO } from './dtos/create-device.dto';
+import { APPROVE_CHECK } from 'src/constants/devices';
+import { JWTUserDTO } from '../auth/dtos/user.dto';
+import { ApproveDeviceDTO } from './dtos/approve-device.dto';
+import { LostDeviceDTO } from './dtos/lost-device.dto';
 
 @Injectable()
 export class DevicesService {
@@ -10,6 +19,86 @@ export class DevicesService {
     @InjectRepository(Device) private repo: Repository<Device>,
     @InjectRepository(User) private repoUser: Repository<User>,
   ) {}
+
+  async addDevice(
+    createDeviceDTO: CreateDeviceDTO,
+    user: JWTUserDTO & {
+      data?: User;
+    },
+  ) {
+    const entityWithId = await this.findOne({
+      id: createDeviceDTO.id,
+      user: { id: user.id },
+    });
+
+    if (!!entityWithId) {
+      throw new ForbiddenException();
+    }
+
+    setTimeout(async () => {
+      const entityForApprove = await this.findOne({
+        id: createDeviceDTO.id,
+        user: { id: user.id },
+      });
+
+      if (!entityForApprove.approved) {
+        await this.remove({
+          id: entityForApprove.id,
+          user: { id: user.id },
+        });
+      }
+    }, APPROVE_CHECK);
+
+    return this.create(user.data, {
+      id: createDeviceDTO.id,
+      user: { id: user.id },
+    });
+  }
+
+  async approveDevice(approveDeviceDTO: ApproveDeviceDTO) {
+    const entityForApprove = await this.findOne({
+      id: approveDeviceDTO.id,
+    });
+
+    this.update(
+      { user: entityForApprove.user },
+      { ...entityForApprove, approved: true },
+    );
+  }
+
+  async getDataForDevice(deviceId: number) {
+    const device = await this.repo.findOne({
+      where: { id: deviceId },
+    });
+
+    device.lastTimeOnline = new Date();
+    device.turnedOff = false;
+
+    return this.repo.save(device);
+  }
+
+  async turnOffDevice(deviceId: number) {
+    const device = await this.repo.findOne({
+      where: { id: deviceId },
+      relations: { user: true },
+    });
+
+    device.lastTimeOnline = new Date();
+    device.turnedOff = true;
+
+    this.repo.save(device);
+  }
+
+  async lostDevice(lostDTO: LostDeviceDTO) {
+    const device = await this.repo.findOne({
+      where: { id: lostDTO.id },
+      relations: { user: true },
+    });
+
+    device.isLost = lostDTO.isLost;
+
+    this.repo.save(device);
+  }
 
   create(user: User, entity: DeepPartial<Device>) {
     const createdEntity = this.repo.create({ ...entity, user });

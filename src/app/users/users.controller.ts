@@ -12,7 +12,7 @@ import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 import { AdminAuth } from '../../decorators/auth';
 
-@Controller('users')
+@Controller('users-admin')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 

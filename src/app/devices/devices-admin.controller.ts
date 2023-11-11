@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import { AdminAuth } from '../../decorators/auth';
 import { DevicesService } from './devices.service';
-import { UpdateDeviceDTO } from './dtos/update-device.dto';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
 import { UsersService } from '../users/users.service';
+import { UpdateDeviceDTO } from './dtos/update-device.dto';
 
 @Controller('devices-admin')
 export class DevicesController {

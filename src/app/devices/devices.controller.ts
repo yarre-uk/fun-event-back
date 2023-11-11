@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -12,10 +11,9 @@ import {
 import { UseAuth } from '../../decorators/auth';
 import { DevicesService } from './devices.service';
 import { AuthRequest } from '../auth/auth-request.interface';
-import { UpdateDeviceDTO } from './dtos/update-device.dto';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
 import { ApproveDeviceDTO } from './dtos/approve-device.dto';
-import { APPROVE_CHECK } from '../../constants/devices';
+import { LostDeviceDTO } from './dtos/lost-device.dto';
 
 @Controller('devices')
 export class DevicesController {
@@ -27,45 +25,12 @@ export class DevicesController {
     @Request() req: AuthRequest,
     @Body() createDeviceDTO: CreateDeviceDTO,
   ) {
-    const entityWithId = await this.deviceService.findOne({
-      id: createDeviceDTO.id,
-      user: { id: req.user.id },
-    });
-
-    if (!!entityWithId) {
-      throw new ForbiddenException();
-    }
-
-    setTimeout(async () => {
-      const entityForApprove = await this.deviceService.findOne({
-        id: createDeviceDTO.id,
-        user: { id: req.user.id },
-      });
-
-      if (!entityForApprove.approved) {
-        await this.deviceService.remove({
-          id: entityForApprove.id,
-          user: { id: req.user.id },
-        });
-      }
-    }, APPROVE_CHECK);
-
-    return this.deviceService.create(req.user.data, {
-      id: createDeviceDTO.id,
-      user: { id: req.user.id },
-    });
+    return this.deviceService.addDevice(createDeviceDTO, req.user);
   }
 
   @Post('/approve')
   async approveDevice(@Body() approveDeviceDTO: ApproveDeviceDTO) {
-    const entityForApprove = await this.deviceService.findOne({
-      id: approveDeviceDTO.id,
-    });
-
-    this.deviceService.update(
-      { user: entityForApprove.user },
-      { ...entityForApprove, approved: true },
-    );
+    return this.deviceService.approveDevice(approveDeviceDTO);
   }
 
   @UseAuth()
@@ -87,6 +52,29 @@ export class DevicesController {
     });
   }
 
+  @Get('/for-device/:id')
+  getDataForDevice(@Param('id') id: string) {
+    if (Number.isNaN(+id)) {
+      return new Error('Id is not a number');
+    }
+
+    return this.deviceService.getDataForDevice(parseInt(id));
+  }
+
+  @Post('/for-device/:id')
+  setTurnOff(@Param('id') id: string) {
+    if (Number.isNaN(+id)) {
+      return new Error('Id is not a number');
+    }
+
+    this.deviceService.turnOffDevice(parseInt(id));
+  }
+
+  @Post('/device-lost/:id')
+  setDeviceIsLost(@Body() lostDTO: LostDeviceDTO) {
+    return this.deviceService.lostDevice(lostDTO);
+  }
+
   @UseAuth()
   @Delete('/:id')
   removeDevice(@Request() req: AuthRequest, @Param('id') id: string) {
@@ -105,7 +93,7 @@ export class DevicesController {
   updateDevice(
     @Request() req: AuthRequest,
     @Param('id') id: string,
-    @Body() body: UpdateDeviceDTO,
+    @Body() body: LostDeviceDTO,
   ) {
     return this.deviceService.update(
       {

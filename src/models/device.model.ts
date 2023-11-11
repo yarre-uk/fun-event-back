@@ -19,6 +19,15 @@ export class Device {
   @Column({ default: false })
   approved: boolean;
 
+  @Column({ default: new Date() })
+  lastTimeOnline: Date;
+
+  @Column({ default: false })
+  turnedOff: boolean;
+
+  @Column({ default: false })
+  isLost: boolean;
+
   @ManyToOne(() => User, (user) => user.devices)
   user: User;
 }
