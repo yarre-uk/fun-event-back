@@ -20,12 +20,14 @@ export class ProfileController {
 
   @UseAuth()
   @Get()
-  @Serialize(UserDTO)
   async getProfile(@Req() request: AuthRequest) {
     const user = await this.usersService.findOne({
       id: request.user.id,
       devices: true,
     });
+
+    delete user.password;
+    delete user.role;
 
     return user;
   }
@@ -38,7 +40,18 @@ export class ProfileController {
 
   @UseAuth()
   @Patch()
-  updateUser(@Req() request: AuthRequest, @Body() body: UpdateUserDTO) {
-    return this.usersService.update(request.user.id, body);
+  async updateUser(@Req() request: AuthRequest, @Body() body: UpdateUserDTO) {
+    const user = await this.usersService.update(request.user.id, body);
+
+    delete user.password;
+    delete user.role;
+
+    return user;
+  }
+
+  @UseAuth()
+  @Get('has-lost-devices')
+  userHasLostDevices(@Req() request: AuthRequest) {
+    return this.usersService.userHasLostDevices(request.user.id);
   }
 }

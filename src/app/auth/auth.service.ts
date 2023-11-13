@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service.js';
 import { JWTUserDTO, SignInDTO, SignUpDTO } from './dtos/user.dto.js';
@@ -37,7 +41,10 @@ export class AuthService {
       );
     }
 
-    if (userDTO.password !== this.decrypt(user.password, 'asdsadasd')) {
+    if (
+      userDTO.password !==
+      this.decrypt(user.password, this.configService.get<string>(SECRET))
+    ) {
       throw new UnauthorizedException(
         `Cant find user with such credentials: ${JSON.stringify(userDTO)}`,
       );
@@ -70,7 +77,14 @@ export class AuthService {
   }
 
   async signUpUser(userDTO: SignUpDTO) {
-    userDTO.password = this.crypt(userDTO.password, 'asdsadasd');
+    if (await this.usersService.findOne({ email: userDTO.email })) {
+      throw new BadRequestException('Email is already taken');
+    }
+
+    userDTO.password = this.crypt(
+      userDTO.password,
+      this.configService.get<string>(SECRET),
+    );
 
     const user = await this.usersService.create(userDTO);
 

@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { Device } from '../../../models/device.model';
+import { DeviceDTO } from '../../devices/dtos/device.dto';
 
 export class UserDTO {
   @Expose()
@@ -9,5 +9,5 @@ export class UserDTO {
   email: string;
 
   @Expose()
-  devices: Device[];
+  devices: DeviceDTO[];
 }

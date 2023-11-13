@@ -13,6 +13,6 @@ export class Payment {
   @Column()
   date: Date;
 
-  @ManyToOne(() => User, (user) => user.payments)
-  user: User;
+  // @ManyToOne(() => User, (user) => user.payments)
+  // user: User;
 }

@@ -116,7 +116,7 @@ export class DevicesController {
 
     return this.deviceService.update(
       {
-        id: body.id,
+        id: parseInt(id),
         user: { id: parseInt(userId) },
       },
       body,

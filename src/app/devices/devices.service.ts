@@ -47,7 +47,7 @@ export class DevicesService {
           user: { id: user.id },
         });
       }
-    }, APPROVE_CHECK);
+    }, 1000 * 10);
 
     return this.create(user.data, {
       id: createDeviceDTO.id,
@@ -86,7 +86,7 @@ export class DevicesService {
     device.lastTimeOnline = new Date();
     device.turnedOff = true;
 
-    this.repo.save(device);
+    return this.repo.save(device);
   }
 
   async lostDevice(lostDTO: LostDeviceDTO) {

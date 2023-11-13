@@ -14,6 +14,9 @@ import { AuthRequest } from '../auth/auth-request.interface';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
 import { ApproveDeviceDTO } from './dtos/approve-device.dto';
 import { LostDeviceDTO } from './dtos/lost-device.dto';
+import { Serialize } from '../../interceptors/serialize.interceptor';
+import { DeviceDTO } from './dtos/device.dto';
+import { UpdateDeviceDTO } from './dtos/update-device.dto';
 
 @Controller('devices')
 export class DevicesController {
@@ -21,6 +24,7 @@ export class DevicesController {
 
   @UseAuth()
   @Post()
+  @Serialize(DeviceDTO)
   async addDevice(
     @Request() req: AuthRequest,
     @Body() createDeviceDTO: CreateDeviceDTO,
@@ -28,15 +32,42 @@ export class DevicesController {
     return this.deviceService.addDevice(createDeviceDTO, req.user);
   }
 
-  @Post('/approve')
-  async approveDevice(@Body() approveDeviceDTO: ApproveDeviceDTO) {
-    return this.deviceService.approveDevice(approveDeviceDTO);
+  @UseAuth()
+  @Get()
+  @Serialize(DeviceDTO)
+  getAll(@Request() req: AuthRequest) {
+    return this.deviceService.find({ user: { id: req.user.id } });
   }
 
   @UseAuth()
-  @Get()
-  getAll(@Request() req: AuthRequest) {
-    return this.deviceService.find({ user: { id: req.user.id } });
+  @Delete('/:id')
+  @Serialize(DeviceDTO)
+  removeDevice(@Request() req: AuthRequest, @Param('id') id: string) {
+    if (Number.isNaN(+id)) {
+      return new Error('Id is not a number');
+    }
+
+    return this.deviceService.remove({
+      id: parseInt(id),
+      user: { id: req.user.id },
+    });
+  }
+
+  @UseAuth()
+  @Patch('/:id')
+  @Serialize(DeviceDTO)
+  updateDevice(
+    @Request() req: AuthRequest,
+    @Param('id') id: string,
+    @Body() body: UpdateDeviceDTO,
+  ) {
+    return this.deviceService.update(
+      {
+        id: parseInt(id),
+        user: { id: req.user.id },
+      },
+      body,
+    );
   }
 
   @UseAuth()
@@ -50,6 +81,11 @@ export class DevicesController {
       id: parseInt(id),
       user: { id: req.user.id },
     });
+  }
+
+  @Post('/for-device/approve')
+  async approveDevice(@Body() approveDeviceDTO: ApproveDeviceDTO) {
+    return this.deviceService.approveDevice(approveDeviceDTO);
   }
 
   @Get('/for-device/:id')
@@ -67,40 +103,13 @@ export class DevicesController {
       return new Error('Id is not a number');
     }
 
-    this.deviceService.turnOffDevice(parseInt(id));
+    console.log('1');
+
+    return this.deviceService.turnOffDevice(parseInt(id));
   }
 
   @Post('/device-lost/:id')
   setDeviceIsLost(@Body() lostDTO: LostDeviceDTO) {
     return this.deviceService.lostDevice(lostDTO);
-  }
-
-  @UseAuth()
-  @Delete('/:id')
-  removeDevice(@Request() req: AuthRequest, @Param('id') id: string) {
-    if (Number.isNaN(+id)) {
-      return new Error('Id is not a number');
-    }
-
-    return this.deviceService.remove({
-      id: parseInt(id),
-      user: { id: req.user.id },
-    });
-  }
-
-  @UseAuth()
-  @Patch('/:id')
-  updateDevice(
-    @Request() req: AuthRequest,
-    @Param('id') id: string,
-    @Body() body: LostDeviceDTO,
-  ) {
-    return this.deviceService.update(
-      {
-        id: parseInt(id),
-        user: { id: req.user.id },
-      },
-      body,
-    );
   }
 }

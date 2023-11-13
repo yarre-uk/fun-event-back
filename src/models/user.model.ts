@@ -20,8 +20,8 @@ export class User {
   @Column({ default: 0 })
   balance: number;
 
-  @OneToMany(() => Payment, (payment) => payment.user, { cascade: true })
-  payments: Payment[];
+  // @OneToMany(() => Payment, (payment) => payment.user, { cascade: true })
+  // payments: Payment[];
 
   @OneToMany(() => Device, (device) => device.user, { cascade: true })
   devices: Device[];

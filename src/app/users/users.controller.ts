@@ -23,7 +23,10 @@ export class UsersController {
       return new Error('id is not a number');
     }
 
-    const user = await this.usersService.findOne({ id: parseInt(id) });
+    const user = await this.usersService.findOne({
+      id: parseInt(id),
+      devices: true,
+    });
 
     if (!user) {
       throw new NotFoundException('user not found');
