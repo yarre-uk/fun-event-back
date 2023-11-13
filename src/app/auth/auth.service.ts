@@ -1,18 +1,22 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service.js';
-import { JWTUserDTO } from './dtos/user.dto.js';
+import { JWTUserDTO, SignInDTO, SignUpDTO } from './dtos/user.dto.js';
 import { UserDTO } from '../users/dtos/user.dto.js';
 import {
   ACCESS_TOKEN_EXPIRES,
   REFRESH_TOKEN_EXPIRES,
+  SECRET,
 } from '../../constants/auth.js';
+import { ConfigService } from '@nestjs/config';
+import { AES, enc } from 'crypto-js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   createToken = (payload: JWTUserDTO, expiresInSeconds: number) => {
@@ -22,12 +26,18 @@ export class AuthService {
   };
 
   async signInUser(
-    userDTO: UserDTO,
+    userDTO: SignInDTO,
     withRefreshToken: boolean,
   ): Promise<{ accessToken: string; refreshToken?: string }> {
-    const user = await this.usersService.findOne(userDTO);
+    const user = await this.usersService.findOne({ email: userDTO.email });
 
     if (!user) {
+      throw new UnauthorizedException(
+        `Cant find user with such credentials: ${JSON.stringify(userDTO)}`,
+      );
+    }
+
+    if (userDTO.password !== this.decrypt(user.password, 'asdsadasd')) {
       throw new UnauthorizedException(
         `Cant find user with such credentials: ${JSON.stringify(userDTO)}`,
       );
@@ -59,7 +69,9 @@ export class AuthService {
     };
   }
 
-  async signUpUser(userDTO: UserDTO) {
+  async signUpUser(userDTO: SignUpDTO) {
+    userDTO.password = this.crypt(userDTO.password, 'asdsadasd');
+
     const user = await this.usersService.create(userDTO);
 
     const payload = { id: user.id, email: user.email };
@@ -70,5 +82,14 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([access, refresh]);
 
     return { accessToken, refreshToken };
+  }
+
+  crypt(stringToCrypt: string, salt: string): string {
+    return AES.encrypt(stringToCrypt, salt).toString();
+  }
+
+  decrypt(stringToDecrypt: string, salt: string): string {
+    const bytes = AES.decrypt(stringToDecrypt, salt);
+    return bytes.toString(enc.Utf8);
   }
 }

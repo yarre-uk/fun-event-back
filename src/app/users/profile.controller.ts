@@ -38,7 +38,7 @@ export class ProfileController {
 
   @UseAuth()
   @Patch()
-  updateUser(@Param('id') id: string, @Body() body: UpdateUserDTO) {
-    return this.usersService.update(parseInt(id), body);
+  updateUser(@Req() request: AuthRequest, @Body() body: UpdateUserDTO) {
+    return this.usersService.update(request.user.id, body);
   }
 }

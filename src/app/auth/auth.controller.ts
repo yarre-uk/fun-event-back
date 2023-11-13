@@ -5,6 +5,7 @@ import { AuthRequest } from './auth-request.interface.js';
 import { UserDTO } from '../users/dtos/user.dto.js';
 import { REFRESH_TOKEN, REFRESH_TOKEN_EXPIRES } from '../../constants/auth.js';
 import { UseAuth, AdminAuth } from '../../decorators/auth.js';
+import { SignInDTO, SignUpDTO } from './dtos/user.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -26,7 +27,7 @@ export class AuthController {
   async signIn(
     @Res({ passthrough: true }) response: Response,
     @Req() request: Request,
-    @Body() userDTO: UserDTO,
+    @Body() userDTO: SignInDTO,
   ) {
     try {
       if (request.cookies[REFRESH_TOKEN]) {
@@ -58,7 +59,7 @@ export class AuthController {
   @Post('signup')
   async signUp(
     @Res({ passthrough: true }) response: Response,
-    @Body() user: UserDTO,
+    @Body() user: SignUpDTO,
   ) {
     const { accessToken, refreshToken } =
       await this.authService.signUpUser(user);
