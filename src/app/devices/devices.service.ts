@@ -15,10 +15,13 @@ import { LostDeviceDTO } from './dtos/lost-device.dto';
 
 @Injectable()
 export class DevicesService {
-  constructor(
-    @InjectRepository(Device) private repo: Repository<Device>,
-    @InjectRepository(User) private repoUser: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(Device) private repo: Repository<Device>) {}
+
+  async test(): Promise<string> {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve('Hello'), 5000);
+    });
+  }
 
   async addDevice(
     createDeviceDTO: CreateDeviceDTO,
