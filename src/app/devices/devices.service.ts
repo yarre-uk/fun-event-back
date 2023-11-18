@@ -8,10 +8,10 @@ import { Repository, DeepPartial, FindOptionsWhere } from 'typeorm';
 import { Device } from '../../models/device.model';
 import { User } from '../../models/user.model';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
-import { APPROVE_CHECK } from 'src/constants/devices';
 import { JWTUserDTO } from '../auth/dtos/user.dto';
 import { ApproveDeviceDTO } from './dtos/approve-device.dto';
 import { LostDeviceDTO } from './dtos/lost-device.dto';
+import { APPROVE_CHECK } from '../../constants/devices';
 
 @Injectable()
 export class DevicesService {

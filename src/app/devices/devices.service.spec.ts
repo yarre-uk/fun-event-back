@@ -10,6 +10,7 @@ import {
   DB_USER,
   DB_PASSWORD,
 } from '../../constants/database';
+import timeoutPromise from '../../utils/timeoutPromise';
 
 describe('DevicesService', () => {
   let service: DevicesService;
@@ -48,7 +49,7 @@ describe('DevicesService', () => {
     expect(service).toBeDefined();
   });
 
-  const user = { id: 15 };
+  const user = { id: 15, email: 'test@gmail.com' };
   const deviceDTO = { id: 0 };
 
   it('should add a new device', async () => {
@@ -59,38 +60,83 @@ describe('DevicesService', () => {
     expect(createdDevice).toBeDefined();
     expect(createdDevice.id).toEqual(0);
     expect(createdDevice.user.id).toEqual(15);
-  }, 10000);
+
+    await service.remove({ id: createdDevice.id });
+    expect(await service.findOne({ id: createdDevice.id })).toBeNull();
+  });
 
   it('should find an existing device', async () => {
-    const foundDevice = await service.findOne({ id: deviceDTO.id });
+    const createdDevice = await service.create(user as User, deviceDTO);
+
+    const foundDevice = await service.findOne({ id: createdDevice.id });
 
     expect(foundDevice).toBeDefined();
-    expect(foundDevice.id).toEqual(deviceDTO.id);
+    expect(foundDevice.id).toEqual(createdDevice.id);
     expect(foundDevice.user.id).toEqual(user.id);
+
+    await service.remove({ id: createdDevice.id });
+    expect(await service.findOne({ id: createdDevice.id })).toBeNull();
   });
 
   it('should find all devices for a user', async () => {
-    const foundDevices = await service.find({ user });
+    const createdDevice = await service.create(user as User, deviceDTO);
+
+    const foundDevices = await service.find({ ...deviceDTO });
 
     expect(foundDevices).toHaveLength(1);
+
+    await service.remove({ id: createdDevice.id });
+    expect(await service.findOne({ id: createdDevice.id })).toBeNull();
   });
 
   it('should update an existing device', async () => {
-    let device = await service.findOne({ id: deviceDTO.id });
-    expect(device.nfcData).toEqual('');
+    const createdDevice = await service.create(user as User, {
+      ...deviceDTO,
+      nfcData: '1',
+    });
+
+    let device = await service.findOne({ id: createdDevice.id });
+    expect(device.nfcData).toEqual('1');
 
     await service.update({ id: device.id }, { nfcData: '2' });
 
     device = await service.findOne({ id: device.id });
 
     expect(device.nfcData).toEqual('2');
+
+    await service.remove({ id: createdDevice.id });
+    expect(await service.findOne({ id: createdDevice.id })).toBeNull();
   });
 
   it('should remove an existing device', async () => {
-    await service.remove({ id: deviceDTO.id });
+    const createdDevice = await service.create(user as User, deviceDTO);
 
-    const foundDevice = await service.findOne({ id: deviceDTO.id });
+    await service.remove({ id: createdDevice.id });
+
+    const foundDevice = await service.findOne({ id: createdDevice.id });
 
     expect(foundDevice).toBeNull();
   });
+
+  const userForCreate = { ...user, data: user as User };
+
+  it('should create a device, wait for 20s, and then check if device was deleted', async () => {
+    const createdDevice = await service.addDevice(deviceDTO, userForCreate);
+
+    await timeoutPromise(20);
+    expect(await service.findOne({ id: createdDevice.id })).toBeNull();
+  }, 25000);
+
+  it('should create a device, approve it, wait for 20s, and then check if it still exists', async () => {
+    const createdDevice = await service.addDevice(deviceDTO, userForCreate);
+
+    await service.approveDevice({ id: createdDevice.id });
+
+    await timeoutPromise(20);
+
+    expect(await service.findOne({ id: createdDevice.id })).toBeDefined();
+
+    await service.remove({ id: createdDevice.id });
+    expect(await service.findOne({ id: createdDevice.id })).toBeNull();
+  }, 25000);
 });

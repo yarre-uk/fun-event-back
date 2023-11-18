@@ -6,7 +6,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service.js';
 import { JWTUserDTO, SignInDTO, SignUpDTO } from './dtos/user.dto.js';
-import { UserDTO } from '../users/dtos/user.dto.js';
 import {
   ACCESS_TOKEN_EXPIRES,
   REFRESH_TOKEN_EXPIRES,
