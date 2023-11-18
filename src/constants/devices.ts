@@ -1,2 +1,2 @@
-export const APPROVE_CHECK = 5 * 60 * 1000;
-export const DEVICE_LOST = 60 * 60 * 1000;
+export const APPROVE_CHECK = 15 * 1000; // 15s
+export const DEVICE_LOST = 30 * 1000; // 30s

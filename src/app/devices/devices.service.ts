@@ -50,7 +50,7 @@ export class DevicesService {
           user: { id: user.id },
         });
       }
-    }, 1000 * 10);
+    }, APPROVE_CHECK);
 
     return this.create(user.data, {
       id: createDeviceDTO.id,
@@ -114,7 +114,7 @@ export class DevicesService {
       return null;
     }
 
-    return this.repo.findOneBy({ ...options, user: true });
+    return this.repo.findOne({ where: options, relations: { user: true } });
   }
 
   find(options?: FindOptionsWhere<Device> | FindOptionsWhere<Device>[]) {

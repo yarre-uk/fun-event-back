@@ -14,6 +14,7 @@ async function bootstrap() {
     .setTitle('FunEvent')
     .setDescription('The FunEvent API description')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
