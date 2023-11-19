@@ -1,11 +1,10 @@
 import { Controller, Post, Body, Res, Req, Get } from '@nestjs/common';
-import { AuthService } from './auth.service.js';
+import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
-import { AuthRequest } from './auth-request.interface.js';
-import { UserDTO } from '../users/dtos/user.dto.js';
-import { REFRESH_TOKEN, REFRESH_TOKEN_EXPIRES } from '../../constants/auth.js';
-import { UseAuth, AdminAuth } from '../../decorators/auth.js';
-import { SignInDTO, SignUpDTO } from './dtos/user.dto.js';
+import { AuthRequest } from './auth-request.interface';
+import { REFRESH_TOKEN, REFRESH_TOKEN_EXPIRES } from '../../constants/auth';
+import { UseAuth, AdminAuth } from '../../decorators/auth';
+import { SignInDTO, SignUpDTO } from './dtos/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -31,12 +30,7 @@ export class AuthController {
   ) {
     try {
       if (request.cookies[REFRESH_TOKEN]) {
-        const { accessToken } = await this.authService.signInUser(
-          userDTO,
-          false,
-        );
-
-        return { accessToken };
+        return this.authService.signInUser(userDTO, false);
       }
 
       const { accessToken, refreshToken } = await this.authService.signInUser(

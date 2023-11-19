@@ -3,16 +3,16 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { AES, enc } from 'crypto-js';
+import { UsersService } from '../users/users.service';
+import { JWTUserDTO, SignInDTO, SignUpDTO } from './dtos/user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service.js';
-import { JWTUserDTO, SignInDTO, SignUpDTO } from './dtos/user.dto.js';
 import {
   ACCESS_TOKEN_EXPIRES,
   REFRESH_TOKEN_EXPIRES,
   SECRET,
-} from '../../constants/auth.js';
-import { ConfigService } from '@nestjs/config';
-import { AES, enc } from 'crypto-js';
+} from '../../constants/auth';
 
 @Injectable()
 export class AuthService {
@@ -22,11 +22,24 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
+  removeUser(email: string) {
+    return this.usersService.removeBy({ email });
+  }
+
   createToken = (payload: JWTUserDTO, expiresInSeconds: number) => {
     return this.jwtService.signAsync(payload, {
       expiresIn: `${expiresInSeconds}ms`,
     });
   };
+
+  crypt(stringToCrypt: string, salt: string): string {
+    return AES.encrypt(stringToCrypt, salt).toString();
+  }
+
+  decrypt(stringToDecrypt: string, salt: string): string {
+    const bytes = AES.decrypt(stringToDecrypt, salt);
+    return bytes.toString(enc.Utf8);
+  }
 
   async signInUser(
     userDTO: SignInDTO,
@@ -80,12 +93,15 @@ export class AuthService {
       throw new BadRequestException('Email is already taken');
     }
 
-    userDTO.password = this.crypt(
+    const password = this.crypt(
       userDTO.password,
       this.configService.get<string>(SECRET),
     );
 
-    const user = await this.usersService.create(userDTO);
+    const user = await this.usersService.create({
+      email: userDTO.email,
+      password,
+    });
 
     const payload = { id: user.id, email: user.email };
 
@@ -95,14 +111,5 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([access, refresh]);
 
     return { accessToken, refreshToken };
-  }
-
-  crypt(stringToCrypt: string, salt: string): string {
-    return AES.encrypt(stringToCrypt, salt).toString();
-  }
-
-  decrypt(stringToDecrypt: string, salt: string): string {
-    const bytes = AES.decrypt(stringToDecrypt, salt);
-    return bytes.toString(enc.Utf8);
   }
 }

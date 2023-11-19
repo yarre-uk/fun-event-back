@@ -13,13 +13,13 @@ import {
   REFRESH_TOKEN,
   REFRESH_TOKEN_EXPIRES,
   SECRET,
-} from '../constants/auth.js';
-import { JWTUserDTO, UserDTOVerified } from '../app/auth/dtos/user.dto.js';
-import { AuthRequest } from '../app/auth/auth-request.interface.js';
+} from '../constants/auth';
+import { JWTUserDTO, UserDTOVerified } from '../app/auth/dtos/user.dto';
+import { AuthRequest } from '../app/auth/auth-request.interface';
 import { Reflector } from '@nestjs/core';
-import { Roles } from './roles.decorator.js';
+import { Roles } from './roles.decorator';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../models/user.model.js';
+import { User } from '../models/user.model';
 import { Repository } from 'typeorm';
 
 @Injectable()

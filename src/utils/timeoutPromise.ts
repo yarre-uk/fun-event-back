@@ -1,6 +1,6 @@
 const timeoutPromise = (seconds: number) =>
-  new Promise((resolve) => {
-    setTimeout(() => resolve('Hello'), seconds * 1000);
+  new Promise<void>((resolve) => {
+    setTimeout(() => resolve(), seconds * 1000);
   });
 
 export default timeoutPromise;

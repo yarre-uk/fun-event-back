@@ -3,6 +3,7 @@ import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../models/user.model';
 import { DEVICE_LOST } from '../../constants/devices';
+import { Device } from '../../models/device.model';
 
 @Injectable()
 export class UsersService {
@@ -51,6 +52,16 @@ export class UsersService {
     return this.repo.remove(user);
   }
 
+  async removeBy(options?: FindOptionsWhere<User> | FindOptionsWhere<User>[]) {
+    const user = await this.findOne(options);
+
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+
+    return this.repo.remove(user);
+  }
+
   async userHasLostDevices(id: number) {
     const user = await this.findOne({ id });
 
@@ -60,16 +71,13 @@ export class UsersService {
 
     return !user.devices
       ? false
-      : user.devices?.some((device) => {
-          console.log(
-            Date.now() - device.lastTimeOnline.getTime(),
-            DEVICE_LOST,
-          );
+      : user.devices?.some((device) => this.checkDeviceDate(device));
+  }
 
-          return (
-            !device.turnedOff &&
-            Date.now() - device.lastTimeOnline.getTime() > DEVICE_LOST
-          );
-        });
+  checkDeviceDate(device: Device) {
+    return (
+      !device.turnedOff &&
+      Date.now() - device.lastTimeOnline.getTime() > DEVICE_LOST
+    );
   }
 }
