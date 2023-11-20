@@ -13,6 +13,7 @@ import {
 } from '../constants/database';
 import { DevicesModule } from './devices/devices.module';
 import { Payment } from '../models/payment';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -39,5 +40,6 @@ import { Payment } from '../models/payment';
     AuthModule,
     DevicesModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
