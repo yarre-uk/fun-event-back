@@ -35,3 +35,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 .env
 tsconfig.build.json
+
+.vercel
