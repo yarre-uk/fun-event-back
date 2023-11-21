@@ -60,7 +60,7 @@ export class DevicesService {
 
   async approveDevice(approveDeviceDTO: ApproveDeviceDTO) {
     const entityForApprove = await this.findOne({
-      id: approveDeviceDTO.id,
+      id: +approveDeviceDTO.id,
     });
 
     this.update(
