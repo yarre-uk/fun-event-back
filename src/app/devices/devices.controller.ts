@@ -54,7 +54,7 @@ export class DevicesController {
   }
 
   @UseAuth()
-  @Patch('/:id')
+  @Post('/:id')
   @Serialize(DeviceDTO)
   updateDevice(
     @Request() req: AuthRequest,
