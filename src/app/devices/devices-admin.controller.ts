@@ -5,7 +5,6 @@ import {
   ForbiddenException,
   Get,
   Param,
-  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -14,6 +13,7 @@ import { DevicesService } from './devices.service';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
 import { UsersService } from '../users/users.service';
 import { UpdateDeviceDTO } from './dtos/update-device.dto';
+import { Device } from 'src/models/device.model';
 
 @Controller('devices-admin')
 export class DevicesController {
@@ -104,11 +104,11 @@ export class DevicesController {
   }
 
   @AdminAuth()
-  @Patch('/:id')
+  @Post('/:id')
   updateDevice(
     @Query('userId') userId: string,
-    @Param('id') id: string,
-    @Body() body: UpdateDeviceDTO,
+    @Query('id') id: string,
+    @Body() body: Partial<Device>,
   ) {
     if (Number.isNaN(+id)) {
       return new Error('Id is not a number');

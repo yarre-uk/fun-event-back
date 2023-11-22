@@ -4,15 +4,13 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
+  Post,
   Req,
 } from '@nestjs/common';
 import { UseAuth } from '../../decorators/auth';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 import { AuthRequest } from '../auth/auth-request.interface';
-import { UserDTO } from './dtos/user.dto';
-import { Serialize } from '../../interceptors/serialize.interceptor';
 
 @Controller('profile')
 export class ProfileController {
@@ -39,7 +37,7 @@ export class ProfileController {
   }
 
   @UseAuth()
-  @Patch()
+  @Post()
   async updateUser(@Req() request: AuthRequest, @Body() body: UpdateUserDTO) {
     const user = await this.usersService.update(request.user.id, body);
 
