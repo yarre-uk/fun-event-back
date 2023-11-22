@@ -13,6 +13,7 @@ import { DevicesService } from './devices.service';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
 import { UsersService } from '../users/users.service';
 import { Device } from 'src/models/device.model';
+import { APPROVE_CHECK } from 'src/constants/devices';
 
 @Controller('devices-admin')
 export class DevicesAdminController {
@@ -52,7 +53,7 @@ export class DevicesAdminController {
           user: { id: parseInt(userId) },
         });
       }
-    }, 60 * 1000);
+    }, APPROVE_CHECK);
 
     const user = await this.userService.findOne({ id: parseInt(userId) });
 
@@ -106,12 +107,14 @@ export class DevicesAdminController {
   @Post('/:id')
   updateDevice(
     @Query('userId') userId: string,
-    @Query('id') id: string,
+    @Param('id') id: string,
     @Body() body: Partial<Device>,
   ) {
     if (Number.isNaN(+id)) {
       return new Error('Id is not a number');
     }
+
+    console.log(userId, id, body);
 
     return this.deviceService.update(
       {
