@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { SECRET } from '../../constants/auth';
 import { User } from '../../models/user.model';
 import { UsersModule } from '../users/users.module';
+import { DevicesAdminController } from './devices-admin.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
   ],
   providers: [DevicesService],
-  controllers: [DevicesController],
+  controllers: [DevicesController, DevicesAdminController],
   exports: [DevicesService],
 })
 export class DevicesModule {}

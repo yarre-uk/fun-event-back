@@ -12,11 +12,10 @@ import { AdminAuth } from '../../decorators/auth';
 import { DevicesService } from './devices.service';
 import { CreateDeviceDTO } from './dtos/create-device.dto';
 import { UsersService } from '../users/users.service';
-import { UpdateDeviceDTO } from './dtos/update-device.dto';
 import { Device } from 'src/models/device.model';
 
 @Controller('devices-admin')
-export class DevicesController {
+export class DevicesAdminController {
   constructor(
     private readonly deviceService: DevicesService,
     private readonly userService: UsersService,
