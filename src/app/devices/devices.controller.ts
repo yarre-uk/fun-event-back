@@ -71,15 +71,19 @@ export class DevicesController {
 
   @UseAuth()
   @Get('/:id')
-  getById(@Request() req: AuthRequest, @Param('id') id: string) {
+  async getById(@Request() req: AuthRequest, @Param('id') id: string) {
     if (Number.isNaN(+id)) {
       return new Error('Id is not a number');
     }
 
-    return this.deviceService.find({
+    const res = await this.deviceService.find({
       id: parseInt(id),
       user: { id: req.user.id },
     });
+
+    res[0].user = null;
+
+    return res[0];
   }
 
   @Post('/for-device/approve')
@@ -101,8 +105,6 @@ export class DevicesController {
     if (Number.isNaN(+id)) {
       return new Error('Id is not a number');
     }
-
-    console.log('1');
 
     return this.deviceService.turnOffDevice(parseInt(id));
   }
