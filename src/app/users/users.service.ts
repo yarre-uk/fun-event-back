@@ -69,9 +69,7 @@ export class UsersService {
       throw new NotFoundException('user not found');
     }
 
-    return !user.devices
-      ? false
-      : user.devices?.some((device) => this.checkDeviceDate(device));
+    return user.devices?.some((device) => this.checkDeviceDate(device));
   }
 
   checkDeviceDate(device: Device) {

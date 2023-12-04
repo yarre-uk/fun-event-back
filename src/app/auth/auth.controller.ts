@@ -40,6 +40,7 @@ export class AuthController {
 
       response.cookie(REFRESH_TOKEN, refreshToken, {
         maxAge: REFRESH_TOKEN_EXPIRES,
+        httpOnly: true,
       });
 
       console.log('Generated refresh for login');
@@ -68,6 +69,6 @@ export class AuthController {
 
   @Post('logout')
   logout(@Res({ passthrough: true }) response: Response) {
-    response.cookie(REFRESH_TOKEN, null, { maxAge: 0 });
+    response.cookie(REFRESH_TOKEN, null, { maxAge: 0, httpOnly: true });
   }
 }

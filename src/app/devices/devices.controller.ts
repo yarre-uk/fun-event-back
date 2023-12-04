@@ -33,7 +33,6 @@ export class DevicesController {
 
   @UseAuth()
   @Get()
-  @Serialize(DeviceDTO)
   getAll(@Request() req: AuthRequest) {
     return this.deviceService.find({ user: { id: req.user.id } });
   }
